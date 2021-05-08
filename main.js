@@ -60,15 +60,60 @@ var cardsArray = [
   },
 ];
 
+var gamegrid = cardsArray.concat(cardsArray);
+gamegrid.sort(function () {
+  return 0.5 - Math.random();
+});
+
 var game = document.getElementById("game-board");
 var grid = document.createElement("section");
 grid.setAttribute("class", "grid");
 game.appendChild(grid);
 
-for (var i = 0; i < cardsArray.length; i++) {
+var firstGuess = "";
+var secondGuess = "";
+var count = 0;
+var previousTarget = null;
+
+var match = function () {
+  var selected = document.querySelectorAll(".selected");
+  for (var i = 0; i < selected.length; i++) {
+    selected[i].classList.add("match");
+  }
+};
+
+for (var i = 0; i < gamegrid.length; i++) {
   var card = document.createElement("div");
   card.classList.add("card");
-  card.dataset.name = cardsArray[i].name;
-  card.style.backgroundImage = `url(${cardsArray[i].img})`;
+  card.dataset.name = gamegrid[i].name;
+  card.style.backgroundImage = `url(${gamegrid[i].img})`;
   grid.appendChild(card);
 }
+
+grid.addEventListener("click", function (event) {
+  var clicked = event.target;
+  if (
+    clicked.nodeName === "SECTION" ||
+    clicked === previousTarget ||
+    clicked.parentNode.classList.contains("match") ||
+    clicked.parentNode.classList.contains("selected")
+  ) {
+    return;
+  }
+  if (count < 2) {
+    count++;
+    if (count === 1) {
+      firstGuess = clicked.dataset.name;
+      clicked.classList.add("selected");
+    } else {
+      secondGuess = clicked.dataset.name;
+      clicked.classList.add("selected");
+    }
+    if (firstGuess !== "" && secondGuess !== "") {
+      if (firstGuess === secondGuess) {
+        match();
+      }
+    }
+    previousTarget = clicked;
+  }
+});
